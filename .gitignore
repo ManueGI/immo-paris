@@ -1,0 +1,13 @@
+# Environnements Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Outillage
+.pytest_cache/
+.ruff_cache/
+
+# Secrets et données
+.env
+data/

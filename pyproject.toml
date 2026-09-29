@@ -1,0 +1,47 @@
+[project]
+name = "immo-paris"
+version = "0.1.0"
+description = "API d'analyse immobilière parisienne basée sur les données DVF"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "fastapi>=0.142.0",
+    "pandas>=3.0.6",
+    "psycopg2-binary>=2.9.13",
+    "pydantic-settings>=2.15.0",
+    "requests>=2.34.2",
+    "uvicorn>=0.54.0",
+]
+
+[project.scripts]
+immo-ingest = "immo_paris.ingestion.cli:main"
+
+[build-system]
+requires = ["uv_build>=0.12,<0.13"]
+build-backend = "uv_build"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = [
+    "E", "W",  # pycodestyle
+    "F",       # pyflakes
+    "I",       # isort
+    "B",       # bugbear
+    "UP",      # pyupgrade
+    "SIM",     # simplify
+    "RUF",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+
+[dependency-groups]
+dev = [
+    "httpx2>=2.13.1",
+    "pytest>=9.1.1",
+    "ruff>=0.16.9",
+]
