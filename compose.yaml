@@ -1,0 +1,25 @@
+# Local development services. Values come from the .env file (see .env.example).
+services:
+  db:
+    # Same major version as the target Amazon RDS instance
+    image: postgis/postgis:17-3.5
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?set POSTGRES_USER in .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${POSTGRES_DB:?set POSTGRES_DB in .env}
+    ports:
+      # Bound to localhost only: the database is not reachable from the local network
+      - "127.0.0.1:5432:5432"
+    volumes:
+      # Named volume: data survives container restarts and removals
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      # Check over TCP: during first-start initialisation, the temporary server only
+      # listens on the Unix socket, so the container is not reported healthy too early
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  pgdata:

@@ -8,17 +8,27 @@ React Native / Expo mobile app.
 ## Requirements
 
 - [uv](https://docs.astral.sh/uv/) (manages Python 3.12 and dependencies)
+- [Docker](https://docs.docker.com/get-docker/) with Compose (runs PostgreSQL + PostGIS locally)
 
 ## Getting started
 
 ```bash
 cp .env.example .env         # then adjust the values
 uv sync                      # create .venv and install locked dependencies
+docker compose up -d --wait  # start PostgreSQL 17 + PostGIS 3.5 on localhost:5432
 uv run immo-ingest           # download DVF and build data/dvf_paris_sample.csv
 uv run python -m immo_paris  # start the API on http://127.0.0.1:8000 (docs: /docs)
 ```
 
 Use `uv run immo-ingest --raw data/dvf_75_2025.csv.gz` to reprocess an already downloaded file.
+
+## Database
+
+```bash
+docker compose exec db psql -U immo -d immo_paris  # open a SQL shell
+docker compose stop                                 # stop (data is kept)
+docker compose down -v                              # remove container AND data
+```
 
 ## Development
 
