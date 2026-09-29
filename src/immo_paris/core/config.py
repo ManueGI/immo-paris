@@ -7,20 +7,20 @@ from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    """Configuration de l'application, lue depuis les variables d'environnement et le .env."""
+    """Application settings, read from environment variables and the .env file."""
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
-    # Serveur API
+    # API server
     api_host: str = "127.0.0.1"
     api_port: int = 8000
-    # Liste séparée par des virgules : "http://localhost:4200,http://localhost:8081"
+    # Comma-separated list: "http://localhost:4200,http://localhost:8081"
     cors_origins: Annotated[list[str], NoDecode] = ["*"]
 
-    # Base de données
+    # Database
     database_url: str | None = None
 
-    # Données DVF
+    # DVF data
     dvf_base_url: str = "https://files.data.gouv.fr/geo-dvf/latest/csv"
     dvf_departement: str = "75"
     data_dir: Path = Path("data")

@@ -9,7 +9,7 @@ def create_app() -> FastAPI:
     settings = get_settings()
     app = FastAPI(title="Immo Paris API", version="0.1.0")
 
-    # Front-ends Angular (web) et React Native (mobile)
+    # Angular (web) and React Native (mobile) front-ends
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origins,

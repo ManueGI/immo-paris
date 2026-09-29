@@ -1,19 +1,25 @@
 import datetime
+from enum import StrEnum
 
 from pydantic import BaseModel
 
 
-class Sale(BaseModel):
-    """Vente DVF exposée aux clients web (Angular) et mobile (React Native)."""
+class PropertyType(StrEnum):
+    APARTMENT = "apartment"
+    HOUSE = "house"
 
-    id_mutation: str
+
+class Sale(BaseModel):
+    """Single-dwelling DVF sale, served to the web (Angular) and mobile (React Native) clients."""
+
+    mutation_id: str
     date: datetime.date
-    adresse: str
-    code_postal: str | None
-    type_bien: str
-    surface: float
-    nb_pieces: int | None
-    prix: float
-    prix_m2: float
+    address: str
+    postal_code: str | None
+    property_type: PropertyType
+    surface_m2: float
+    rooms: int | None
+    price: float
+    price_per_m2: float
     longitude: float | None
     latitude: float | None

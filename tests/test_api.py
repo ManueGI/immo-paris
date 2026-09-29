@@ -18,10 +18,11 @@ def test_sales_sample_returns_typed_records(client: TestClient) -> None:
     assert resp.status_code == 200
     sales = resp.json()
     assert len(sales) == 2
-    assert sales[0]["code_postal"] == "75014"
-    assert sales[0]["nb_pieces"] == 2
-    # Valeurs manquantes sérialisées en null, pas en NaN
-    assert sales[1]["nb_pieces"] is None
+    assert sales[0]["postal_code"] == "75014"
+    assert sales[0]["property_type"] == "apartment"
+    assert sales[0]["rooms"] == 2
+    # Missing values are serialized as null, not NaN
+    assert sales[1]["rooms"] is None
     assert sales[1]["latitude"] is None
 
 
