@@ -26,6 +26,18 @@ class Settings(BaseSettings):
     data_dir: Path = Path("data")
     sample_csv: Path = Path("data/dvf_paris_sample.csv")
 
+    @field_validator("database_url")
+    @classmethod
+    def use_psycopg_driver(cls, value: str | None) -> str | None:
+        # Keep a standard URL in .env (usable by psql and other tools) and tell
+        # SQLAlchemy to use the psycopg 3 driver
+        if value is None:
+            return None
+        for scheme in ("postgresql://", "postgres://"):
+            if value.startswith(scheme):
+                return "postgresql+psycopg://" + value.removeprefix(scheme)
+        return value
+
     @field_validator("cors_origins", mode="before")
     @classmethod
     def split_origins(cls, value: str | list[str]) -> list[str]:

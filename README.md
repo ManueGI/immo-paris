@@ -16,6 +16,7 @@ React Native / Expo mobile app.
 cp .env.example .env         # then adjust the values
 uv sync                      # create .venv and install locked dependencies
 docker compose up -d --wait  # start PostgreSQL 17 + PostGIS 3.5 on localhost:5432
+uv run alembic upgrade head  # create or update the database schema
 uv run immo-ingest           # download DVF and build data/dvf_paris_sample.csv
 uv run python -m immo_paris  # start the API on http://127.0.0.1:8000 (docs: /docs)
 ```
@@ -28,6 +29,16 @@ Use `uv run immo-ingest --raw data/dvf_75_2025.csv.gz` to reprocess an already d
 docker compose exec db psql -U immo -d immo_paris  # open a SQL shell
 docker compose stop                                 # stop (data is kept)
 docker compose down -v                              # remove container AND data
+```
+
+The schema is defined by the SQLAlchemy models in `src/immo_paris/db/models.py` and
+versioned with Alembic migrations in `migrations/versions/`:
+
+```bash
+uv run alembic revision --autogenerate -m "describe the change"  # draft a migration, then review it
+uv run alembic upgrade head                                     # apply pending migrations
+uv run alembic downgrade -1                                     # revert the last migration
+uv run alembic check                                            # fail if models and migrations differ
 ```
 
 ## Development
@@ -56,8 +67,10 @@ each row. The ingestion pipeline (`src/immo_paris/ingestion/dvf.py`) therefore k
 src/immo_paris/
 ├── api/          # FastAPI application and routers
 ├── core/         # settings (pydantic-settings)
+├── db/           # SQLAlchemy models (database tables)
 ├── ingestion/    # DVF download and cleaning
 └── schemas/      # public Pydantic models (JSON contract for clients)
+migrations/       # Alembic migrations
 tests/
 └── fixtures/     # hand-built raw DVF samples
 ```
