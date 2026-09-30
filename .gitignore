@@ -1,14 +1,14 @@
-# Environnements Python
+# Python environments
 .venv/
 venv/
 __pycache__/
 *.pyc
 
-# Outillage
+# Tooling
 .pytest_cache/
 .ruff_cache/
 
-# Secrets et données
+# Secrets and downloaded data
 .env
 data/
 
