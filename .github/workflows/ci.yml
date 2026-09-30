@@ -12,6 +12,9 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+# Actions are pinned to a commit SHA (immutable), with the version as a comment: a moved or
+# hijacked tag cannot change the code that runs here. Dependabot keeps the pins up to date.
+
 # Least privilege: the workflow only needs to read the code
 permissions:
   contents: read
@@ -45,10 +48,10 @@ jobs:
 
     steps:
       - name: Check out the code
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v10
+        uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
         with:
           version: "0.12.20"
           # Reuse downloaded packages between runs
@@ -81,13 +84,13 @@ jobs:
 
     steps:
       - name: Check out the code
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
 
       - name: Build the image
-        uses: docker/build-push-action@v7
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: .
           # Only prove that the image builds; publishing comes with the deployment
