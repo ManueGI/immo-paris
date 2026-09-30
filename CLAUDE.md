@@ -11,7 +11,7 @@ sales published by the DGFiP). This monorepo holds every part of it:
 | `api/` | API, DVF ingestion, database schema | Python, FastAPI, PostgreSQL + PostGIS | [api/CLAUDE.md](api/CLAUDE.md) |
 | `web/` (planned) | Dashboard and back-office | Angular | |
 | `mobile/` (planned) | Field app with geolocation | React Native / Expo | |
-| `packages/` (planned) | Code shared by the web and mobile apps, e.g. the API client generated from `api/openapi.json` | TypeScript | |
+| `packages/` | Code shared by the web and mobile apps: `api-client`, generated from `api/openapi.json` | TypeScript, pnpm | [packages/api-client/README.md](packages/api-client/README.md) |
 
 The API serves the web and mobile apps **at the same time**, and installed mobile apps
 lag behind: the API contract must stay backward compatible (see
@@ -29,6 +29,9 @@ their official French spelling.
   part's commands from its directory (`cd api`, or `uv run --directory api ...`).
 - Shared local infrastructure lives at the root: `compose.yaml` and the `.env` it reads
   (see `.env.example`). Never commit `.env`.
+- The TypeScript parts form one pnpm workspace (`pnpm-workspace.yaml`, Node version in
+  `.node-version`, pnpm version in `package.json`). From the root: `pnpm install`,
+  `pnpm generate`, `pnpm typecheck`, `pnpm build`; all must pass before committing.
 - CI workflows in `.github/workflows/` are required checks on `main`. Do not add a
   workflow-level `paths` filter to a required workflow: a skipped workflow never reports
   its checks and blocks unrelated pull requests. Skip work inside the jobs instead.
