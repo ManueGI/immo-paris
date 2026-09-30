@@ -49,6 +49,12 @@ uv run ruff check .          # lint
 uv run ruff format .         # format
 ```
 
+## Contributing
+
+Project conventions (language, architecture, API contract, database and test rules) are
+documented in [CLAUDE.md](CLAUDE.md) and [.claude/rules/](.claude/rules/). They apply to
+human and AI contributors alike.
+
 ## DVF cleaning rules
 
 A DVF mutation spans one row per lot, and `valeur_fonciere` is the total price repeated on
