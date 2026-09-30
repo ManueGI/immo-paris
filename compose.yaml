@@ -1,6 +1,7 @@
-# Local services. Values come from the .env file (see .env.example).
+# Local services, run from the repository root. Values come from the root .env file
+# (see .env.example).
 #
-#   docker compose up -d --wait                 database only (API run with uv on the host)
+#   docker compose up -d --wait                 database only (API run with uv from api/)
 #   docker compose --profile app up -d --wait   + migrations + containerized API on :8080
 services:
   db:
@@ -29,7 +30,7 @@ services:
   migrate:
     profiles: [app]
     image: immo-paris-api:dev
-    build: .
+    build: ./api
     command: ["alembic", "upgrade", "head"]
     environment: &app-environment
       # Inside the Compose network, the database host is the service name "db"
@@ -42,7 +43,7 @@ services:
   api:
     profiles: [app]
     image: immo-paris-api:dev
-    build: .
+    build: ./api
     environment: *app-environment
     ports:
       # 8080 on the host by default, so it does not clash with the API run with uv on 8000

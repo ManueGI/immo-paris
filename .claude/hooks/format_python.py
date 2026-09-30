@@ -1,14 +1,24 @@
 """PostToolUse hook: format the Python file Claude just edited and report lint errors.
 
 Claude Code sends the tool call as JSON on stdin. Exit code 2 feeds stderr back to Claude
-so it fixes the reported problems. Runs with any Python 3 (no project dependencies).
+so it fixes the reported problems. Runs with any Python 3 (no project dependencies), including
+an old system python3: keep the syntax compatible with Python 3.8.
 """
 
+from __future__ import annotations
+
 import json
-import os
 import subprocess
 import sys
 from pathlib import Path
+
+
+def find_python_project(file_path: Path) -> Path | None:
+    """Closest parent directory with a pyproject.toml and an installed ruff (e.g. api/)."""
+    for directory in file_path.parents:
+        if (directory / "pyproject.toml").exists() and (directory / ".venv/bin/ruff").exists():
+            return directory
+    return None
 
 
 def main() -> int:
@@ -17,16 +27,16 @@ def main() -> int:
     if not file_path.endswith(".py"):
         return 0
 
-    project_dir = Path(os.environ.get("CLAUDE_PROJECT_DIR", "."))
-    ruff = project_dir / ".venv" / "bin" / "ruff"
-    if not ruff.exists():
-        # Dependencies not installed yet (uv sync): nothing to run
+    project = find_python_project(Path(file_path).resolve())
+    if project is None:
+        # Not in a Python project, or dependencies not installed yet (uv sync)
         return 0
 
-    subprocess.run([str(ruff), "format", "--quiet", file_path], cwd=project_dir, check=False)
+    ruff = str(project / ".venv/bin/ruff")
+    subprocess.run([ruff, "format", "--quiet", file_path], cwd=project, check=False)
     lint = subprocess.run(
-        [str(ruff), "check", "--quiet", file_path],
-        cwd=project_dir,
+        [ruff, "check", "--quiet", file_path],
+        cwd=project,
         capture_output=True,
         text=True,
         check=False,

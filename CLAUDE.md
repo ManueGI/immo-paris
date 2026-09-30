@@ -1,34 +1,21 @@
 # CLAUDE.md
 
-Conventions for anyone (human or AI) changing this codebase. Setup and usage are in
+Conventions for anyone (human or AI) changing this repository. Setup and usage are in
 [README.md](README.md).
 
-FastAPI backend of Immo Paris: ingests DVF open data (property sales published by the
-DGFiP), cleans it, stores it in PostgreSQL + PostGIS and serves it as JSON to **two
-clients at once**: an Angular web dashboard and a React Native / Expo mobile app.
+Immo Paris is a Paris real-estate analytics platform built on DVF open data (property
+sales published by the DGFiP). This monorepo holds every part of it:
 
-## Commands
+| Directory | Content | Stack | Details |
+|---|---|---|---|
+| `api/` | API, DVF ingestion, database schema | Python, FastAPI, PostgreSQL + PostGIS | [api/CLAUDE.md](api/CLAUDE.md) |
+| `web/` (planned) | Dashboard and back-office | Angular | |
+| `mobile/` (planned) | Field app with geolocation | React Native / Expo | |
+| `packages/` (planned) | Code shared by the web and mobile apps, e.g. the API client generated from `api/openapi.json` | TypeScript | |
 
-```bash
-uv sync                          # install locked dependencies
-docker compose up -d --wait      # start PostgreSQL 17 + PostGIS 3.5
-uv run alembic upgrade head      # apply migrations
-uv run python -m immo_paris      # run the API (http://127.0.0.1:8000/docs)
-uv run immo-ingest --raw data/dvf_75_2025.csv.gz   # run ingestion on a local file
-uv run immo-openapi                                # regenerate openapi.json after an API change
-docker compose --profile app up -d --build --wait  # containerized API on :8080
-```
-
-The Docker image runs as an unprivileged user with a read-only `/app`, and never contains
-secrets (`.env` is excluded by `.dockerignore`): configuration comes from environment
-variables. Migrations run as a separate one-off container, not at API startup.
-
-**Definition of done**: all of these pass before committing. CI (`.github/workflows/ci.yml`)
-runs the same checks, plus the Docker build, on every push to `main` and every pull request.
-
-```bash
-uv run ruff format --check . && uv run ruff check . && uv run pytest && uv run alembic check
-```
+The API serves the web and mobile apps **at the same time**, and installed mobile apps
+lag behind: the API contract must stay backward compatible (see
+`.claude/rules/api-contract.md`).
 
 ## Language
 
@@ -36,17 +23,15 @@ Everything in the repository is in **English**: identifiers, comments, docstring
 fields, error and log messages, tests, commit messages, docs. Only DVF domain values keep
 their official French spelling.
 
-## Architecture
+## Repository layout rules
 
-- `api/` HTTP layer · `repositories/` SQL queries, the only data access of the API ·
-  `schemas/` public JSON contract · `db/` database schema · `ingestion/` DVF download,
-  cleaning and loading · `core/` settings.
-- Dependencies point one way: `api → repositories → db, schemas`; `ingestion → db, core`.
-  `api` and `ingestion` never import each other.
-- Inject dependencies with FastAPI `Depends` (settings, DB sessions) instead of calling
-  them inside endpoints, so tests can override them.
-- Keep I/O (network, disk, database) at the edges and business rules in pure functions.
-- New configuration goes in `core/config.py` **and** `.env.example`. Never commit `.env`.
+- Each part is self-contained: its own dependencies, commands and `CLAUDE.md`. Run a
+  part's commands from its directory (`cd api`, or `uv run --directory api ...`).
+- Shared local infrastructure lives at the root: `compose.yaml` and the `.env` it reads
+  (see `.env.example`). Never commit `.env`.
+- CI workflows in `.github/workflows/` are required checks on `main`. Do not add a
+  workflow-level `paths` filter to a required workflow: a skipped workflow never reports
+  its checks and blocks unrelated pull requests. Skip work inside the jobs instead.
 
 ## Commits and pull requests
 
@@ -55,10 +40,12 @@ their official French spelling.
 - Pull requests are squash-merged: the PR title becomes the commit subject on `main`, so
   write it like a commit (English, imperative: `Add ...`, `Fix ...`) and explain **why**
   in the description.
-- Keep a pull request to one logical change; the definition of done passes on every commit.
+- Keep a pull request to one logical change; each part's definition of done passes on
+  every commit.
 
 ## Where the other rules live
 
+- `<part>/CLAUDE.md`: commands, architecture and definition of done of that part.
 - `.claude/rules/`: rules loaded when working on matching files (API contract, DVF data,
   database, tests).
 - `.claude/skills/`: step-by-step procedures (`new-migration`).

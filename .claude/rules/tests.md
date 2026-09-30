@@ -1,6 +1,6 @@
 ---
 paths:
-  - "tests/**"
+  - "api/tests/**"
 ---
 
 # Tests
