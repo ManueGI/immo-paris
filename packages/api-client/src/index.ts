@@ -7,19 +7,19 @@
  *
  * src/schema.ts is generated (`pnpm generate`): never edit it by hand.
  */
-import createClient, { type ClientOptions } from "openapi-fetch";
+import createClient, { type ClientOptions } from 'openapi-fetch';
 
-import type { components, paths } from "./schema.js";
+import type { components, paths } from './schema.js';
 
-type Schemas = components["schemas"];
+type Schemas = components['schemas'];
 
-export type Sale = Schemas["Sale"];
-export type SalePage = Schemas["SalePage"];
-export type NearbySale = Schemas["NearbySale"];
-export type CommuneStats = Schemas["CommuneStats"];
-export type PropertyType = Schemas["PropertyType"];
-export type ErrorResponse = Schemas["ErrorResponse"];
-export type ValidationErrorResponse = Schemas["HTTPValidationError"];
+export type Sale = Schemas['Sale'];
+export type SalePage = Schemas['SalePage'];
+export type NearbySale = Schemas['NearbySale'];
+export type CommuneStats = Schemas['CommuneStats'];
+export type PropertyType = Schemas['PropertyType'];
+export type ErrorResponse = Schemas['ErrorResponse'];
+export type ValidationErrorResponse = Schemas['HTTPValidationError'];
 export type { components, paths };
 
 export type ApiClient = ReturnType<typeof createApiClient>;

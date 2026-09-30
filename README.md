@@ -12,7 +12,7 @@ per m² statistics by arrondissement.
 | Directory | Content | Stack |
 |---|---|---|
 | [api/](api/) | REST API, DVF ingestion, database schema | Python 3.12, FastAPI, PostgreSQL 17 + PostGIS, Alembic, Docker |
-| `web/` (planned) | Dashboard and back-office | Angular |
+| [web/](web/) | Public website: prices by arrondissement and recent sales, server-side rendered | Angular 22 |
 | `mobile/` (planned) | Field app with geolocation | React Native / Expo |
 | [packages/](packages/) | Shared TypeScript code: [api-client](packages/api-client/), generated from [api/openapi.json](api/openapi.json) | TypeScript, pnpm |
 

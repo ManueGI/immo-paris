@@ -1,4 +1,4 @@
-# Continuous integration of the TypeScript workspace (packages/, and later web/ and mobile/).
+# Continuous integration of the TypeScript workspace (packages/ and web/, later mobile/).
 # No `paths` filter on purpose: this job is a required check (see the root CLAUDE.md).
 name: TypeScript
 
@@ -46,8 +46,15 @@ jobs:
             exit 1
           }
 
+      - name: Check formatting
+        run: pnpm format:check
+
       - name: Type-check
         run: pnpm typecheck
 
+      - name: Unit tests
+        run: pnpm test
+
       - name: Build
+        # Also type-checks Angular templates (strictTemplates) and renders nothing at build time
         run: pnpm build

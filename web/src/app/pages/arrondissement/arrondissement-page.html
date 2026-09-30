@@ -1,0 +1,55 @@
+<p class="breadcrumb"><a routerLink="/">Tous les arrondissements</a></p>
+
+<h1>Prix de l'immobilier à {{ arrondissement().label }}</h1>
+
+<section class="stats" aria-label="Prix au mètre carré">
+  <app-price-stats-card heading="Appartements" [stats]="apartmentStats()" />
+  <app-price-stats-card heading="Maisons" [stats]="houseStats()" />
+</section>
+
+<h2>Ventes récentes</h2>
+
+@if (firstPage.isLoading()) {
+  <p>Chargement des ventes…</p>
+} @else if (firstPage.error()) {
+  <p role="alert">Les ventes sont momentanément indisponibles.</p>
+} @else {
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Date</th>
+          <th scope="col">Adresse</th>
+          <th scope="col">Type</th>
+          <th scope="col" class="number">Surface</th>
+          <th scope="col" class="number">Pièces</th>
+          <th scope="col" class="number">Prix</th>
+          <th scope="col" class="number">Prix au m²</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (sale of sales(); track sale.id) {
+          <tr>
+            <td>{{ sale.date | date: 'mediumDate' }}</td>
+            <td>{{ sale.address }}</td>
+            <td>{{ sale.property_type | propertyTypeLabel }}</td>
+            <td class="number">{{ sale.surface_m2 }} m²</td>
+            <td class="number">{{ sale.rooms ?? '—' }}</td>
+            <td class="number">{{ sale.price | currency: 'EUR' : 'symbol' : '1.0-0' }}</td>
+            <td class="number">{{ sale.price_per_m2 | currency: 'EUR' : 'symbol' : '1.0-0' }}</td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="7">Aucune vente enregistrée.</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  @if (nextCursor()) {
+    <button type="button" class="load-more" [disabled]="loadingMore()" (click)="loadMore()">
+      {{ loadingMore() ? 'Chargement…' : 'Voir plus de ventes' }}
+    </button>
+  }
+}
