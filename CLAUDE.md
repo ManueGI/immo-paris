@@ -22,7 +22,8 @@ The Docker image runs as an unprivileged user with a read-only `/app`, and never
 secrets (`.env` is excluded by `.dockerignore`): configuration comes from environment
 variables. Migrations run as a separate one-off container, not at API startup.
 
-**Definition of done**: all of these pass before committing.
+**Definition of done**: all of these pass before committing. CI (`.github/workflows/ci.yml`)
+runs the same checks, plus the Docker build, on every push to `main` and every pull request.
 
 ```bash
 uv run ruff format --check . && uv run ruff check . && uv run pytest && uv run alembic check

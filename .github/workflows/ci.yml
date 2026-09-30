@@ -1,0 +1,98 @@
+# Continuous integration: runs the definition of done (see CLAUDE.md) on a fresh machine
+# for every push to main and every pull request.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# A new push to the same branch cancels the run still in progress for the previous one
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+# Least privilege: the workflow only needs to read the code
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    name: Lint, migrations, tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    # PostgreSQL + PostGIS container started next to the job, like compose.yaml locally
+    services:
+      db:
+        image: postgis/postgis:17-3.5
+        env:
+          POSTGRES_USER: immo
+          POSTGRES_PASSWORD: ci-only-password
+          POSTGRES_DB: immo_paris
+        ports:
+          - 5432:5432
+        # Wait until the database accepts TCP connections before running the steps
+        options: >-
+          --health-cmd "pg_isready -h 127.0.0.1 -U immo -d immo_paris"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 20
+
+    env:
+      # Throwaway database that only exists during this job: this password is not a secret
+      DATABASE_URL: postgresql://immo:ci-only-password@localhost:5432/immo_paris
+
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v7
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v10
+        with:
+          version: "0.12.20"
+          # Reuse downloaded packages between runs
+          enable-cache: true
+
+      - name: Install dependencies
+        # --locked fails if uv.lock is out of date with pyproject.toml
+        run: uv sync --locked
+
+      - name: Check formatting
+        run: uv run ruff format --check .
+
+      - name: Lint
+        # GitHub output format: errors are shown on the lines of the diff
+        run: uv run ruff check --output-format=github .
+
+      - name: Apply migrations
+        run: uv run alembic upgrade head
+
+      - name: Check models and migrations are in sync
+        run: uv run alembic check
+
+      - name: Run tests
+        run: uv run pytest
+
+  docker:
+    name: Docker image
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v7
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build the image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          # Only prove that the image builds; publishing comes with the deployment
+          push: false
+          tags: immo-paris-api:ci
+          # Keep Docker layers in the GitHub Actions cache between runs
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

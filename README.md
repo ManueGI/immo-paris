@@ -1,5 +1,7 @@
 # Immo Paris API
 
+[![CI](https://github.com/ManueGI/immo-paris-api/actions/workflows/ci.yml/badge.svg)](https://github.com/ManueGI/immo-paris-api/actions/workflows/ci.yml)
+
 Paris real-estate analytics API built on the
 [DVF](https://www.data.gouv.fr/fr/datasets/demandes-de-valeurs-foncieres-geolocalisees/)
 open data (Demandes de Valeurs Foncières, DGFiP). It serves the Angular dashboard and the
