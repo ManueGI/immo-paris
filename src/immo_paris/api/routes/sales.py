@@ -20,7 +20,7 @@ def list_sales(
     sales: SaleRepositoryDep,
     commune_code: CommuneCode | None = None,
     property_type: PropertyType | None = None,
-    limit: Annotated[int, Query(ge=1, le=100)] = 20,
+    limit: Annotated[int, Query(ge=1, le=50)] = 20,
     cursor: Annotated[str | None, Query(description="next_cursor of the previous page")] = None,
 ) -> SalePage:
     """Most recent sales first, one page at a time."""
