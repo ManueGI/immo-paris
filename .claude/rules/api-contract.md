@@ -15,7 +15,8 @@ The API serves an Angular web app and a React Native mobile app at the same time
 - Every endpoint declares a `response_model` from `schemas/`, and its error responses
   (`responses={404: {"model": ErrorResponse}}`) so generated clients know them.
 - `api/openapi.json` is the committed contract: after any API change, run `uv run immo-openapi`
-  and commit it with the change (a test fails otherwise). Review its diff like code.
+  and commit it with the change (a test fails otherwise), then regenerate the TypeScript
+  client (`pnpm generate` at the root). Review both diffs like code.
 - CI (`contract.yml`) fails a pull request that breaks the contract. The
   `breaking-change` label skips that check: use it only for a deliberate break, such as
   removing a version that clients no longer use.

@@ -1,11 +1,36 @@
-# Opens pull requests when the GitHub Actions used in .github/workflows have new releases,
-# updating the pinned commit SHAs and their version comments.
+# Weekly grouped pull requests to update dependencies. Each one goes through CI like any
+# other pull request.
 version: 2
 updates:
+  # Actions of .github/workflows, pinned to commit SHAs
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
     groups:
       github-actions:
+        patterns: ["*"]
+
+  # Python dependencies of the API (api/uv.lock)
+  - package-ecosystem: uv
+    directory: /api
+    schedule:
+      interval: weekly
+    groups:
+      api-python:
+        patterns: ["*"]
+
+  # Base images of the API Docker image
+  - package-ecosystem: docker
+    directory: /api
+    schedule:
+      interval: weekly
+
+  # TypeScript workspace (pnpm-lock.yaml)
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      typescript:
         patterns: ["*"]

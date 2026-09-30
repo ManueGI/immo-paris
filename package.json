@@ -1,0 +1,14 @@
+{
+  "name": "immo-paris",
+  "private": true,
+  "description": "Immo Paris monorepo: TypeScript workspace (shared packages, web and mobile apps)",
+  "packageManager": "pnpm@12.8.1",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "generate": "pnpm --recursive run generate",
+    "typecheck": "pnpm --recursive run typecheck",
+    "build": "pnpm --recursive run build"
+  }
+}

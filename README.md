@@ -14,15 +14,15 @@ per m² statistics by arrondissement.
 | [api/](api/) | REST API, DVF ingestion, database schema | Python 3.12, FastAPI, PostgreSQL 17 + PostGIS, Alembic, Docker |
 | `web/` (planned) | Dashboard and back-office | Angular |
 | `mobile/` (planned) | Field app with geolocation | React Native / Expo |
-| `packages/` (planned) | Shared TypeScript code, including the API client generated from [api/openapi.json](api/openapi.json) | TypeScript |
+| [packages/](packages/) | Shared TypeScript code: [api-client](packages/api-client/), generated from [api/openapi.json](api/openapi.json) | TypeScript, pnpm |
 
 The API contract is committed as `api/openapi.json`: the web and mobile clients are
 generated from it, and pull requests that break it fail CI.
 
 ## Getting started
 
-Requirements: [uv](https://docs.astral.sh/uv/) and [Docker](https://docs.docker.com/get-docker/)
-with Compose.
+Requirements: [uv](https://docs.astral.sh/uv/), [Docker](https://docs.docker.com/get-docker/)
+with Compose, and for the TypeScript workspace Node.js 22 with pnpm (`corepack enable`).
 
 ```bash
 cp .env.example .env                         # then adjust the values
