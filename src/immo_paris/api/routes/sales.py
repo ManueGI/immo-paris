@@ -1,9 +1,11 @@
 from typing import Annotated
 
 from fastapi import APIRouter, HTTPException, Query
+from fastapi.exceptions import RequestValidationError
 
 from immo_paris.api.dependencies import SaleRepositoryDep
 from immo_paris.repositories.pagination import InvalidCursorError, SaleCursor
+from immo_paris.schemas.errors import ErrorResponse
 from immo_paris.schemas.sale import NearbySale, PropertyType, Sale, SalePage
 
 router = APIRouter(prefix="/api/v1/sales", tags=["sales"])
@@ -25,7 +27,17 @@ def list_sales(
     try:
         position = SaleCursor.decode(cursor) if cursor is not None else None
     except InvalidCursorError as error:
-        raise HTTPException(status_code=422, detail=str(error)) from error
+        # Same 422 body as FastAPI's own validation errors, as documented in the contract
+        raise RequestValidationError(
+            [
+                {
+                    "type": "value_error",
+                    "loc": ("query", "cursor"),
+                    "msg": str(error),
+                    "input": cursor,
+                }
+            ]
+        ) from error
     return sales.list_recent(
         limit=limit, cursor=position, commune_code=commune_code, property_type=property_type
     )
@@ -44,7 +56,11 @@ def list_nearby_sales(
     return sales.nearby(longitude=lng, latitude=lat, radius_m=radius_m, limit=limit)
 
 
-@router.get("/{sale_id}", response_model=Sale)
+@router.get(
+    "/{sale_id}",
+    response_model=Sale,
+    responses={404: {"model": ErrorResponse, "description": "Sale not found"}},
+)
 def get_sale(sale_id: int, sales: SaleRepositoryDep) -> Sale:
     sale = sales.get(sale_id)
     if sale is None:

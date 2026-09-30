@@ -33,7 +33,9 @@ for y in 2021 2022 2023 2024 2025; do uv run immo-ingest --year $y; done  # full
 
 ## API
 
-Interactive documentation: http://127.0.0.1:8000/docs (OpenAPI schema at `/openapi.json`).
+Interactive documentation: http://127.0.0.1:8000/docs. The contract is committed as
+[openapi.json](openapi.json) (regenerate it with `uv run immo-openapi`): the web and mobile
+TypeScript clients are generated from it, and pull requests that break it fail CI.
 
 | Endpoint | Purpose |
 |---|---|

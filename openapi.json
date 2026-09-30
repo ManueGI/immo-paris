@@ -1,0 +1,757 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Immo Paris API",
+    "version": "0.2.0"
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": [
+          "health"
+        ],
+        "summary": "Health",
+        "operationId": "health",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object",
+                  "title": "Response Health"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sales": {
+      "get": {
+        "tags": [
+          "sales"
+        ],
+        "summary": "List Sales",
+        "description": "Most recent sales first, one page at a time.",
+        "operationId": "list_sales",
+        "parameters": [
+          {
+            "name": "commune_code",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[0-9][0-9AB][0-9]{3}$",
+                  "description": "INSEE code, e.g. 75111"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Commune Code"
+            }
+          },
+          {
+            "name": "property_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/PropertyType"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Property Type"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "next_cursor of the previous page",
+              "title": "Cursor"
+            },
+            "description": "next_cursor of the previous page"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SalePage"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sales/nearby": {
+      "get": {
+        "tags": [
+          "sales"
+        ],
+        "summary": "List Nearby Sales",
+        "description": "Sales around a point, nearest first.",
+        "operationId": "list_nearby_sales",
+        "parameters": [
+          {
+            "name": "lat",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "maximum": 90,
+              "minimum": -90,
+              "description": "Latitude (WGS 84)",
+              "title": "Lat"
+            },
+            "description": "Latitude (WGS 84)"
+          },
+          {
+            "name": "lng",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "maximum": 180,
+              "minimum": -180,
+              "description": "Longitude (WGS 84)",
+              "title": "Lng"
+            },
+            "description": "Longitude (WGS 84)"
+          },
+          {
+            "name": "radius_m",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 5000,
+              "minimum": 1,
+              "description": "Search radius in metres",
+              "default": 500,
+              "title": "Radius M"
+            },
+            "description": "Search radius in metres"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NearbySale"
+                  },
+                  "title": "Response List Nearby Sales"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sales/{sale_id}": {
+      "get": {
+        "tags": [
+          "sales"
+        ],
+        "summary": "Get Sale",
+        "operationId": "get_sale",
+        "parameters": [
+          {
+            "name": "sale_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Sale Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Sale"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Sale not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/stats/communes": {
+      "get": {
+        "tags": [
+          "stats"
+        ],
+        "summary": "List Commune Stats",
+        "description": "Price per m² statistics by commune (arrondissement) for one year.",
+        "operationId": "list_commune_stats",
+        "parameters": [
+          {
+            "name": "year",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 2000
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Default: latest year",
+              "title": "Year"
+            },
+            "description": "Default: latest year"
+          },
+          {
+            "name": "property_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/PropertyType"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Property Type"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CommuneStats"
+                  },
+                  "title": "Response List Commune Stats"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CommuneStats": {
+        "properties": {
+          "commune_code": {
+            "type": "string",
+            "title": "Commune Code"
+          },
+          "year": {
+            "type": "integer",
+            "title": "Year"
+          },
+          "property_type": {
+            "$ref": "#/components/schemas/PropertyType"
+          },
+          "sales_count": {
+            "type": "integer",
+            "title": "Sales Count"
+          },
+          "p25_price_per_m2": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P25 Price Per M2"
+          },
+          "median_price_per_m2": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Median Price Per M2"
+          },
+          "p75_price_per_m2": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P75 Price Per M2"
+          },
+          "avg_surface_m2": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avg Surface M2"
+          },
+          "commune_label": {
+            "type": "string",
+            "title": "Commune Label",
+            "readOnly": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "commune_code",
+          "year",
+          "property_type",
+          "sales_count",
+          "p25_price_per_m2",
+          "median_price_per_m2",
+          "p75_price_per_m2",
+          "avg_surface_m2",
+          "commune_label"
+        ],
+        "title": "CommuneStats",
+        "description": "Price per m² statistics of one commune for one year and property type.\n\nPrice statistics are null when `sales_count` is too low to be meaningful."
+      },
+      "ErrorResponse": {
+        "properties": {
+          "detail": {
+            "type": "string",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "required": [
+          "detail"
+        ],
+        "title": "ErrorResponse",
+        "description": "Body of 4xx/5xx errors raised by the API (except 422 validation errors)."
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "NearbySale": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "mutation_id": {
+            "type": "string",
+            "title": "Mutation Id"
+          },
+          "date": {
+            "type": "string",
+            "format": "date",
+            "title": "Date"
+          },
+          "commune_code": {
+            "type": "string",
+            "title": "Commune Code"
+          },
+          "address": {
+            "type": "string",
+            "title": "Address"
+          },
+          "postal_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Postal Code"
+          },
+          "property_type": {
+            "$ref": "#/components/schemas/PropertyType"
+          },
+          "surface_m2": {
+            "type": "integer",
+            "title": "Surface M2"
+          },
+          "rooms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rooms"
+          },
+          "price": {
+            "type": "integer",
+            "title": "Price"
+          },
+          "price_per_m2": {
+            "type": "integer",
+            "title": "Price Per M2"
+          },
+          "longitude": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Longitude"
+          },
+          "latitude": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latitude"
+          },
+          "distance_m": {
+            "type": "integer",
+            "title": "Distance M"
+          },
+          "commune_label": {
+            "type": "string",
+            "title": "Commune Label",
+            "readOnly": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "mutation_id",
+          "date",
+          "commune_code",
+          "address",
+          "postal_code",
+          "property_type",
+          "surface_m2",
+          "rooms",
+          "price",
+          "price_per_m2",
+          "longitude",
+          "latitude",
+          "distance_m",
+          "commune_label"
+        ],
+        "title": "NearbySale"
+      },
+      "PropertyType": {
+        "type": "string",
+        "enum": [
+          "apartment",
+          "house"
+        ],
+        "title": "PropertyType"
+      },
+      "Sale": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "mutation_id": {
+            "type": "string",
+            "title": "Mutation Id"
+          },
+          "date": {
+            "type": "string",
+            "format": "date",
+            "title": "Date"
+          },
+          "commune_code": {
+            "type": "string",
+            "title": "Commune Code"
+          },
+          "address": {
+            "type": "string",
+            "title": "Address"
+          },
+          "postal_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Postal Code"
+          },
+          "property_type": {
+            "$ref": "#/components/schemas/PropertyType"
+          },
+          "surface_m2": {
+            "type": "integer",
+            "title": "Surface M2"
+          },
+          "rooms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rooms"
+          },
+          "price": {
+            "type": "integer",
+            "title": "Price"
+          },
+          "price_per_m2": {
+            "type": "integer",
+            "title": "Price Per M2"
+          },
+          "longitude": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Longitude"
+          },
+          "latitude": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latitude"
+          },
+          "commune_label": {
+            "type": "string",
+            "title": "Commune Label",
+            "readOnly": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "mutation_id",
+          "date",
+          "commune_code",
+          "address",
+          "postal_code",
+          "property_type",
+          "surface_m2",
+          "rooms",
+          "price",
+          "price_per_m2",
+          "longitude",
+          "latitude",
+          "commune_label"
+        ],
+        "title": "Sale",
+        "description": "Single-dwelling DVF sale, served to the web (Angular) and mobile (React Native) clients."
+      },
+      "SalePage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/Sale"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "title": "SalePage",
+        "description": "One page of sales. Pass `next_cursor` back as `cursor` to get the next page."
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}
