@@ -1,0 +1,8 @@
+# Python project: formatted by ruff
+api/
+# Generated or installed files
+packages/api-client/src/schema.ts
+pnpm-lock.yaml
+**/dist/
+**/.angular/
+**/node_modules/

@@ -1,0 +1,54 @@
+<h1>Prix de l'immobilier à Paris par arrondissement</h1>
+<p class="intro">
+  Prix médian au m² des appartements vendus
+  @if (year(); as year) {
+    en {{ year }},
+  }
+  d'après les ventes réelles enregistrées par les notaires.
+</p>
+
+@if (stats.isLoading()) {
+  <p>Chargement des prix…</p>
+} @else if (stats.error()) {
+  <p role="alert">Les prix sont momentanément indisponibles. Réessayez dans quelques minutes.</p>
+} @else {
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Arrondissement</th>
+          <th scope="col" class="number">Prix médian</th>
+          <th scope="col" class="number">Moitié des ventes entre</th>
+          <th scope="col" class="number">Ventes</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of rows(); track row.arrondissement.code) {
+          <tr>
+            <td>
+              <a [routerLink]="['/arrondissements', row.arrondissement.slug]">
+                {{ row.arrondissement.label }}
+              </a>
+            </td>
+            @if (row.stats.median_price_per_m2 !== null) {
+              <td class="number">
+                {{ row.stats.median_price_per_m2 | currency: 'EUR' : 'symbol' : '1.0-0' }}/m²
+              </td>
+              <td class="number">
+                {{ row.stats.p25_price_per_m2 | currency: 'EUR' : 'symbol' : '1.0-0' }} –
+                {{ row.stats.p75_price_per_m2 | currency: 'EUR' : 'symbol' : '1.0-0' }}
+              </td>
+            } @else {
+              <td class="number" colspan="2">Pas assez de ventes</td>
+            }
+            <td class="number">{{ row.stats.sales_count }}</td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="4">Aucune donnée disponible.</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}

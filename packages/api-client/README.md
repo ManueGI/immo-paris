@@ -5,10 +5,10 @@ with [openapi-typescript](https://openapi-ts.dev/). `src/schema.ts` is generated
 it by hand.
 
 ```ts
-import { createApiClient, type Sale } from "@immo-paris/api-client";
+import { createApiClient, type Sale } from '@immo-paris/api-client';
 
-const api = createApiClient({ baseUrl: "https://api.example.com" });
-const { data, error } = await api.GET("/api/v1/sales/nearby", {
+const api = createApiClient({ baseUrl: 'https://api.example.com' });
+const { data, error } = await api.GET('/api/v1/sales/nearby', {
   params: { query: { lat: 48.853, lng: 2.3499, radius_m: 300 } },
 });
 ```

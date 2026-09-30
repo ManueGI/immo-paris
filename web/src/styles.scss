@@ -1,0 +1,69 @@
+/* Global styles. Component styles live next to each component and only apply to it. */
+
+:root {
+  --text: #1c1f24;
+  --muted: #5d6470;
+  --border: #dde1e6;
+  --surface: #f5f7f9;
+  --accent: #2456a6;
+  --background: #ffffff;
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text: #e7e9ec;
+    --muted: #a0a7b2;
+    --border: #353a42;
+    --surface: #1d2127;
+    --accent: #7fa8ea;
+    --background: #121418;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+  line-height: 1.5;
+  color: var(--text);
+  background: var(--background);
+}
+
+a {
+  color: var(--accent);
+}
+
+h1 {
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  line-height: 1.2;
+  margin: 0 0 0.5rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 0.5rem;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+
+td.number,
+th.number {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}

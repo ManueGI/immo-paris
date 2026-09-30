@@ -1,3 +1,17 @@
 # TypeScript workspace. The Python API (api/) is managed by uv, not pnpm.
 packages:
   - "packages/*"
+  - "web"
+
+# Install scripts are blocked by default (supply-chain protection): only these build tools
+# may run them. Review any new entry before approving it (pnpm approve-builds <package>).
+allowBuilds:
+  '@parcel/watcher': true # file watching for the Angular dev server
+  esbuild: true # bundler used by the Angular build
+  lmdb: true # Angular build cache
+  msgpackr-extract: true # Angular build cache
+
+peerDependencyRules:
+  allowedVersions:
+    # openapi-typescript declares TypeScript 5 but works with 6, the version Angular requires
+    openapi-typescript>typescript: "6"

@@ -9,7 +9,7 @@ sales published by the DGFiP). This monorepo holds every part of it:
 | Directory | Content | Stack | Details |
 |---|---|---|---|
 | `api/` | API, DVF ingestion, database schema | Python, FastAPI, PostgreSQL + PostGIS | [api/CLAUDE.md](api/CLAUDE.md) |
-| `web/` (planned) | Dashboard and back-office | Angular | |
+| `web/` | Public website: prices by arrondissement, recent sales (SSR for SEO) | Angular 22 | [web/CLAUDE.md](web/CLAUDE.md) |
 | `mobile/` (planned) | Field app with geolocation | React Native / Expo | |
 | `packages/` | Code shared by the web and mobile apps: `api-client`, generated from `api/openapi.json` | TypeScript, pnpm | [packages/api-client/README.md](packages/api-client/README.md) |
 
@@ -20,8 +20,8 @@ lag behind: the API contract must stay backward compatible (see
 ## Language
 
 Everything in the repository is in **English**: identifiers, comments, docstrings, JSON
-fields, error and log messages, tests, commit messages, docs. Only DVF domain values keep
-their official French spelling.
+fields, error and log messages, tests, commit messages, docs. Exceptions: DVF domain values
+keep their official French spelling, and text shown to users of the apps is in French.
 
 ## Repository layout rules
 
@@ -30,8 +30,11 @@ their official French spelling.
 - Shared local infrastructure lives at the root: `compose.yaml` and the `.env` it reads
   (see `.env.example`). Never commit `.env`.
 - The TypeScript parts form one pnpm workspace (`pnpm-workspace.yaml`, Node version in
-  `.node-version`, pnpm version in `package.json`). From the root: `pnpm install`,
-  `pnpm generate`, `pnpm typecheck`, `pnpm build`; all must pass before committing.
+  `.node-version`, pnpm version in `package.json`). From the root: `pnpm install`, then
+  `pnpm generate && pnpm format:check && pnpm typecheck && pnpm test && pnpm build`, which
+  must all pass before committing (Prettier formats `web/` and `packages/`).
+- Install scripts of dependencies are blocked unless listed in `allowBuilds`
+  (`pnpm-workspace.yaml`): review a package before approving it.
 - CI workflows in `.github/workflows/` are required checks on `main`. Do not add a
   workflow-level `paths` filter to a required workflow: a skipped workflow never reports
   its checks and blocks unrelated pull requests. Skip work inside the jobs instead.
