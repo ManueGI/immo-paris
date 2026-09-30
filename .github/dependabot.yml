@@ -25,6 +25,11 @@ updates:
     directory: /api
     schedule:
       interval: weekly
+    ignore:
+      # The image must match requires-python in api/pyproject.toml (3.12): moving to a newer
+      # Python is a deliberate change of both, not an automatic bump
+      - dependency-name: python
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
 
   # TypeScript workspace (pnpm-lock.yaml)
   - package-ecosystem: npm
@@ -34,3 +39,12 @@ updates:
     groups:
       typescript:
         patterns: ["*"]
+    ignore:
+      # Angular supports one TypeScript minor version (6.0.x for Angular 22)
+      - dependency-name: typescript
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      # Angular major versions are upgraded with `ng update`, which also migrates the code
+      - dependency-name: "@angular/*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@angular-devkit/*"
+        update-types: ["version-update:semver-major"]
