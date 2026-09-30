@@ -61,8 +61,15 @@ def test_list_sales_filters_by_commune_and_property_type(api: TestClient) -> Non
     assert mutation_ids(houses["items"]) == ["M-HOUSE"]
 
 
+def test_invalid_cursor_uses_the_standard_validation_error_body(api: TestClient) -> None:
+    resp = api.get("/api/v1/sales", params={"cursor": "not-a-cursor"})
+
+    assert resp.status_code == 422
+    [error] = resp.json()["detail"]
+    assert error["loc"] == ["query", "cursor"]
+
+
 def test_list_sales_rejects_invalid_parameters(api: TestClient) -> None:
-    assert api.get("/api/v1/sales", params={"cursor": "not-a-cursor"}).status_code == 422
     assert api.get("/api/v1/sales", params={"limit": 101}).status_code == 422
     assert api.get("/api/v1/sales", params={"commune_code": "Paris"}).status_code == 422
     assert api.get("/api/v1/sales", params={"property_type": "castle"}).status_code == 422

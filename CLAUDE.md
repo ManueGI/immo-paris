@@ -15,6 +15,7 @@ docker compose up -d --wait      # start PostgreSQL 17 + PostGIS 3.5
 uv run alembic upgrade head      # apply migrations
 uv run python -m immo_paris      # run the API (http://127.0.0.1:8000/docs)
 uv run immo-ingest --raw data/dvf_75_2025.csv.gz   # run ingestion on a local file
+uv run immo-openapi                                # regenerate openapi.json after an API change
 docker compose --profile app up -d --build --wait  # containerized API on :8080
 ```
 
