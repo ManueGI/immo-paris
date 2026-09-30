@@ -31,10 +31,11 @@ their official French spelling.
 
 ## Architecture
 
-- `api/` HTTP layer · `schemas/` public JSON contract · `db/` database schema ·
-  `ingestion/` DVF download and cleaning · `core/` settings.
-- Dependencies point one way: `api → schemas, core`; `ingestion → db, core`. `api` and
-  `ingestion` never import each other.
+- `api/` HTTP layer · `repositories/` SQL queries, the only data access of the API ·
+  `schemas/` public JSON contract · `db/` database schema · `ingestion/` DVF download,
+  cleaning and loading · `core/` settings.
+- Dependencies point one way: `api → repositories → db, schemas`; `ingestion → db, core`.
+  `api` and `ingestion` never import each other.
 - Inject dependencies with FastAPI `Depends` (settings, DB sessions) instead of calling
   them inside endpoints, so tests can override them.
 - Keep I/O (network, disk, database) at the edges and business rules in pure functions.

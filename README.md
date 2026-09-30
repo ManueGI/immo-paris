@@ -29,6 +29,17 @@ uv run immo-ingest --raw data/dvf_75_2025.csv.gz       # reload an already downl
 for y in 2021 2022 2023 2024 2025; do uv run immo-ingest --year $y; done  # full history
 ```
 
+## API
+
+Interactive documentation: http://127.0.0.1:8000/docs (OpenAPI schema at `/openapi.json`).
+
+| Endpoint | Purpose |
+|---|---|
+| `GET /api/v1/sales` | Most recent sales, filterable by `commune_code` and `property_type`, paginated with `cursor` |
+| `GET /api/v1/sales/nearby?lat=&lng=&radius_m=` | Sales around a point, nearest first |
+| `GET /api/v1/sales/{sale_id}` | One sale |
+| `GET /api/v1/stats/communes?year=&property_type=` | Price per m² median and quartiles by commune (null below 10 sales) |
+
 ## Database
 
 ```bash
@@ -81,6 +92,7 @@ cleaning step), and the `commune_yearly_stats` materialized view is refreshed af
 ```
 src/immo_paris/
 ├── api/          # FastAPI application and routers
+├── repositories/ # SQL queries used by the API
 ├── core/         # settings (pydantic-settings)
 ├── db/           # SQLAlchemy models (database tables)
 ├── ingestion/    # DVF download and cleaning

@@ -31,12 +31,6 @@ def main() -> int:
         type=Path,
         help="Use an already downloaded geo-dvf file instead of downloading it",
     )
-    parser.add_argument(
-        "--limit",
-        type=int,
-        default=1000,
-        help="Number of rows in the CSV extract (0 = all). Default: 1000",
-    )
     args = parser.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(message)s")
 
@@ -56,13 +50,6 @@ def main() -> int:
     result = clean(raw)
     replace_year(get_engine(), result.sales, source, result.row_counts)
 
-    # Temporary: the API reads this CSV extract until it queries the database (step 3d)
-    extract = result.sales.sort_values(["date", "mutation_id"], ascending=False)
-    if args.limit:
-        extract = extract.head(args.limit)
-    settings.sample_csv.parent.mkdir(parents=True, exist_ok=True)
-    extract.to_csv(settings.sample_csv, index=False)
-    logger.info("CSV extract saved: %s (%d sales)", settings.sample_csv, len(extract))
     return 0
 
 

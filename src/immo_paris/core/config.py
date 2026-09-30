@@ -24,7 +24,6 @@ class Settings(BaseSettings):
     dvf_base_url: str = "https://files.data.gouv.fr/geo-dvf/latest/csv"
     dvf_departement: str = "75"
     data_dir: Path = Path("data")
-    sample_csv: Path = Path("data/dvf_paris_sample.csv")
 
     @field_validator("database_url")
     @classmethod

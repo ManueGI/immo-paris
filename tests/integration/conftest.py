@@ -11,9 +11,14 @@ from pathlib import Path
 import pytest
 from alembic import command
 from alembic.config import Config
-from sqlalchemy import Engine, create_engine, make_url, text
+from fastapi.testclient import TestClient
+from sqlalchemy import Connection, Engine, create_engine, make_url, text
 
+from immo_paris.api.app import create_app
 from immo_paris.core.config import get_settings
+from immo_paris.db.session import get_connection
+from immo_paris.ingestion.dvf import clean, load_raw
+from immo_paris.ingestion.loader import DataSource, replace_year
 
 PROJECT_ROOT = Path(__file__).parents[2]
 
@@ -50,3 +55,26 @@ def db(db_engine: Engine) -> Engine:
         conn.execute(text("TRUNCATE sales, ingestion_runs RESTART IDENTITY"))
         conn.execute(text("REFRESH MATERIALIZED VIEW commune_yearly_stats"))
     return db_engine
+
+
+@pytest.fixture
+def loaded_db(db: Engine, raw_dvf_csv: Path) -> Engine:
+    """The test database loaded with the 3 clean sales of the hand-built DVF fixture."""
+    result = clean(load_raw(raw_dvf_csv))
+    source = DataSource(url="file:///tests/fixtures/dvf_raw.csv", sha256="0" * 64, year=2025)
+    replace_year(db, result.sales, source, result.row_counts)
+    return db
+
+
+@pytest.fixture
+def api(loaded_db: Engine) -> Iterator[TestClient]:
+    """An API client whose requests read the loaded test database."""
+
+    def connect_to_test_db() -> Iterator[Connection]:
+        with loaded_db.connect() as connection:
+            yield connection
+
+    app = create_app()
+    app.dependency_overrides[get_connection] = connect_to_test_db
+    with TestClient(app) as client:
+        yield client

@@ -1,6 +1,7 @@
 ---
 paths:
   - "src/immo_paris/db/**"
+  - "src/immo_paris/repositories/**"
   - "migrations/**"
   - "compose.yaml"
 ---

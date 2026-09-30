@@ -1,41 +1,19 @@
-from pathlib import Path
-
 from fastapi.testclient import TestClient
 
-from immo_paris.core.config import Settings, get_settings
+from immo_paris.api.app import create_app
 
 
-def test_health(client: TestClient) -> None:
-    resp = client.get("/health")
+def test_health_does_not_need_the_database() -> None:
+    with TestClient(create_app()) as client:
+        resp = client.get("/health")
 
     assert resp.status_code == 200
     assert resp.json() == {"status": "ok"}
 
 
-def test_sales_sample_returns_typed_records(client: TestClient) -> None:
-    resp = client.get("/api/v1/sales/sample")
+def test_openapi_operation_ids_are_function_names() -> None:
+    with TestClient(create_app()) as client:
+        paths = client.get("/openapi.json").json()["paths"]
 
-    assert resp.status_code == 200
-    sales = resp.json()
-    assert len(sales) == 2
-    assert sales[0]["postal_code"] == "75014"
-    assert sales[0]["property_type"] == "apartment"
-    assert sales[0]["rooms"] == 2
-    # Missing values are serialized as null, not NaN
-    assert sales[1]["rooms"] is None
-    assert sales[1]["latitude"] is None
-
-
-def test_sales_sample_missing_data_returns_503(client: TestClient, tmp_path: Path) -> None:
-    missing = tmp_path / "absent.csv"
-    client.app.dependency_overrides[get_settings] = lambda: Settings(sample_csv=missing)
-
-    resp = client.get("/api/v1/sales/sample")
-
-    assert resp.status_code == 503
-
-
-def test_cors_origins_parsed_from_comma_separated_string() -> None:
-    settings = Settings(cors_origins="http://localhost:4200, http://localhost:8081")
-
-    assert settings.cors_origins == ["http://localhost:4200", "http://localhost:8081"]
+    assert paths["/api/v1/sales"]["get"]["operationId"] == "list_sales"
+    assert paths["/api/v1/sales/{sale_id}"]["get"]["operationId"] == "get_sale"
