@@ -69,7 +69,8 @@ class Sale(Base):
     ingestion_run_id: Mapped[int] = mapped_column(ForeignKey("ingestion_runs.id"))
     sale_date: Mapped[date]
     commune_code: Mapped[str] = mapped_column(String(5))
-    postal_code: Mapped[str] = mapped_column(String(5))
+    # Missing for a few DVF sales; commune_code is the reliable administrative area
+    postal_code: Mapped[str | None] = mapped_column(String(5))
     address: Mapped[str] = mapped_column(Text)
     property_type: Mapped[str] = mapped_column(Text)
     surface_m2: Mapped[int] = mapped_column(Integer)
