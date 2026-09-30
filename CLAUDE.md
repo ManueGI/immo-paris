@@ -47,10 +47,14 @@ their official French spelling.
 - Keep I/O (network, disk, database) at the edges and business rules in pure functions.
 - New configuration goes in `core/config.py` **and** `.env.example`. Never commit `.env`.
 
-## Commits
+## Commits and pull requests
 
-- English, imperative subject line (`Add ...`, `Fix ...`), body explaining **why**.
-- One logical change per commit; the definition of done passes on every commit.
+- `main` is protected: no direct push. Work on a branch (`feat/...`, `fix/...`,
+  `docs/...`, `chore/...`), open a pull request, and merge once CI is green.
+- Pull requests are squash-merged: the PR title becomes the commit subject on `main`, so
+  write it like a commit (English, imperative: `Add ...`, `Fix ...`) and explain **why**
+  in the description.
+- Keep a pull request to one logical change; the definition of done passes on every commit.
 
 ## Where the other rules live
 
