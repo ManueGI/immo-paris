@@ -1,0 +1,10 @@
+# Build context is api/: keep it small and never send secrets or local state to the image
+.env
+.venv
+data
+tests
+**/__pycache__
+.pytest_cache
+.ruff_cache
+Dockerfile
+CLAUDE.md

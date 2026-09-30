@@ -1,5 +1,5 @@
 [project]
-name = "immo-paris"
+name = "immo-paris-api"
 version = "0.1.0"
 description = "Paris real-estate analytics API built on DVF open data"
 readme = "README.md"
@@ -23,6 +23,10 @@ immo-openapi = "immo_paris.api.export_openapi:main"
 [build-system]
 requires = ["uv_build>=0.12,<0.13"]
 build-backend = "uv_build"
+
+[tool.uv.build-backend]
+# Distribution name "immo-paris-api", import name "immo_paris"
+module-name = "immo_paris"
 
 [tool.ruff]
 line-length = 100

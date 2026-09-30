@@ -1,11 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "Bash(uv run pytest *)",
-      "Bash(uv run ruff *)",
-      "Bash(uv run alembic check)",
-      "Bash(uv run alembic current)",
-      "Bash(uv run alembic history *)",
+      "Bash(uv run --directory api pytest *)",
+      "Bash(uv run --directory api ruff *)",
+      "Bash(uv run --directory api alembic check)",
+      "Bash(uv run --directory api alembic current)",
+      "Bash(uv run --directory api alembic history *)",
       "Bash(docker compose ps *)",
       "Bash(docker compose logs *)"
     ]

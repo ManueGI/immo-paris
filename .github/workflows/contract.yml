@@ -1,4 +1,4 @@
-# API contract guard: fails a pull request that breaks openapi.json compared to its base
+# API contract guard: fails a pull request that breaks api/openapi.json compared to its base
 # branch (removed endpoint or field, changed type...), since installed mobile apps cannot be
 # updated instantly. An intentional break must be made explicit with the `breaking-change`
 # label on the pull request.
@@ -33,10 +33,10 @@ jobs:
         env:
           BASE_REF: ${{ github.base_ref }}
         run: |
-          if git show "origin/$BASE_REF:openapi.json" > "$RUNNER_TEMP/base.json" 2>/dev/null; then
+          if git show "origin/$BASE_REF:api/openapi.json" > "$RUNNER_TEMP/base.json" 2>/dev/null; then
             echo "exists=true" >> "$GITHUB_OUTPUT"
           else
-            echo "::notice::No openapi.json on $BASE_REF yet: nothing to compare"
+            echo "::notice::No api/openapi.json on $BASE_REF yet: nothing to compare"
             echo "exists=false" >> "$GITHUB_OUTPUT"
           fi
 
@@ -49,7 +49,7 @@ jobs:
           docker run --rm
           -v "$RUNNER_TEMP:/base:ro" -v "$PWD:/head:ro"
           tufin/oasdiff@sha256:3b14fe0112e5d1bf862f91ab234a4bcd161a3f399e98f8b0b665ce70857694ac
-          breaking /base/base.json /head/openapi.json
+          breaking /base/base.json /head/api/openapi.json
           --fail-on ERR --format githubactions
 
       - name: Intentional breaking change

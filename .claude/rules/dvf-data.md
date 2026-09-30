@@ -1,8 +1,8 @@
 ---
 paths:
-  - "src/immo_paris/ingestion/**"
-  - "tests/fixtures/**"
-  - "tests/test_dvf_*.py"
+  - "api/src/immo_paris/ingestion/**"
+  - "api/tests/fixtures/**"
+  - "api/tests/test_dvf_*.py"
 ---
 
 # DVF data

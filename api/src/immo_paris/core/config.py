@@ -9,7 +9,11 @@ from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 class Settings(BaseSettings):
     """Application settings, read from environment variables and the .env file."""
 
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+    # Commands run from api/: the repository-root .env (shared with compose.yaml) is read
+    # first, then an optional api/.env that overrides it
+    model_config = SettingsConfigDict(
+        env_file=("../.env", ".env"), env_file_encoding="utf-8", extra="ignore"
+    )
 
     # API server
     api_host: str = "127.0.0.1"

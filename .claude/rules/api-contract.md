@@ -1,8 +1,8 @@
 ---
 paths:
-  - "src/immo_paris/api/**"
-  - "src/immo_paris/schemas/**"
-  - "openapi.json"
+  - "api/src/immo_paris/api/**"
+  - "api/src/immo_paris/schemas/**"
+  - "api/openapi.json"
 ---
 
 # API contract
@@ -14,7 +14,7 @@ The API serves an Angular web app and a React Native mobile app at the same time
   through an injected dependency (`Depends`), so tests can override it.
 - Every endpoint declares a `response_model` from `schemas/`, and its error responses
   (`responses={404: {"model": ErrorResponse}}`) so generated clients know them.
-- `openapi.json` is the committed contract: after any API change, run `uv run immo-openapi`
+- `api/openapi.json` is the committed contract: after any API change, run `uv run immo-openapi`
   and commit it with the change (a test fails otherwise). Review its diff like code.
 - CI (`contract.yml`) fails a pull request that breaks the contract. The
   `breaking-change` label skips that check: use it only for a deliberate break, such as

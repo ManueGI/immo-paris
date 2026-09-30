@@ -1,5 +1,8 @@
-# Continuous integration: runs the definition of done (see CLAUDE.md) on a fresh machine
-# for every push to main and every pull request.
+# Continuous integration of the API (api/): runs its definition of done (see api/CLAUDE.md)
+# on a fresh machine for every push to main and every pull request.
+#
+# No `paths` filter on purpose: these jobs are required checks, and a workflow skipped by a
+# path filter never reports them, which would block pull requests that do not touch api/.
 name: CI
 
 on:
@@ -46,6 +49,10 @@ jobs:
       # Throwaway database that only exists during this job: this password is not a secret
       DATABASE_URL: postgresql://immo:ci-only-password@localhost:5432/immo_paris
 
+    defaults:
+      run:
+        working-directory: api
+
     steps:
       - name: Check out the code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -56,6 +63,7 @@ jobs:
           version: "0.12.20"
           # Reuse downloaded packages between runs
           enable-cache: true
+          cache-dependency-glob: api/uv.lock
 
       - name: Install dependencies
         # --locked fails if uv.lock is out of date with pyproject.toml
@@ -92,7 +100,7 @@ jobs:
       - name: Build the image
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
-          context: .
+          context: ./api
           # Only prove that the image builds; publishing comes with the deployment
           push: false
           tags: immo-paris-api:ci
