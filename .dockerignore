@@ -1,0 +1,15 @@
+# Keep the build context small and never send secrets or local state to the image
+.env
+.git
+.venv
+venv
+data
+tests
+.claude
+**/__pycache__
+.pytest_cache
+.ruff_cache
+compose.yaml
+Dockerfile
+CLAUDE.md
+CLAUDE.local.md

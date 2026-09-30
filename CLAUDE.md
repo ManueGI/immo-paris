@@ -15,7 +15,12 @@ docker compose up -d --wait      # start PostgreSQL 17 + PostGIS 3.5
 uv run alembic upgrade head      # apply migrations
 uv run python -m immo_paris      # run the API (http://127.0.0.1:8000/docs)
 uv run immo-ingest --raw data/dvf_75_2025.csv.gz   # run ingestion on a local file
+docker compose --profile app up -d --build --wait  # containerized API on :8080
 ```
+
+The Docker image runs as an unprivileged user with a read-only `/app`, and never contains
+secrets (`.env` is excluded by `.dockerignore`): configuration comes from environment
+variables. Migrations run as a separate one-off container, not at API startup.
 
 **Definition of done**: all of these pass before committing.
 

@@ -1,4 +1,7 @@
-# Local development services. Values come from the .env file (see .env.example).
+# Local services. Values come from the .env file (see .env.example).
+#
+#   docker compose up -d --wait                 database only (API run with uv on the host)
+#   docker compose --profile app up -d --wait   + migrations + containerized API on :8080
 services:
   db:
     # Same major version as the target Amazon RDS instance
@@ -20,6 +23,44 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
+
+  # Applies pending migrations once, then exits. Kept out of the API startup: with several
+  # API containers, each would try to migrate at the same time.
+  migrate:
+    profiles: [app]
+    image: immo-paris-api:dev
+    build: .
+    command: ["alembic", "upgrade", "head"]
+    environment: &app-environment
+      # Inside the Compose network, the database host is the service name "db"
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:4200,http://localhost:8081}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  api:
+    profiles: [app]
+    image: immo-paris-api:dev
+    build: .
+    environment: *app-environment
+    ports:
+      # 8080 on the host by default, so it does not clash with the API run with uv on 8000
+      - "127.0.0.1:${API_DOCKER_PORT:-8080}:8000"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      # The slim image has no curl: use Python to call /health
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=2)"
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
 
 volumes:
   pgdata:

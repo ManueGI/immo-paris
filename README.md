@@ -40,6 +40,18 @@ Interactive documentation: http://127.0.0.1:8000/docs (OpenAPI schema at `/opena
 | `GET /api/v1/sales/{sale_id}` | One sale |
 | `GET /api/v1/stats/communes?year=&property_type=` | Price per m² median and quartiles by commune (null below 10 sales) |
 
+## Docker
+
+The same image runs the API, the migrations and the ingestion.
+
+```bash
+docker compose --profile app up -d --build --wait  # database + migrations + API on http://127.0.0.1:8080
+docker compose --profile app run --rm --no-deps api immo-ingest --year 2025  # ingestion in a container
+docker compose --profile app down                   # stop everything (data is kept)
+```
+
+Without `--profile app`, Compose only starts the database, for local development with uv.
+
 ## Database
 
 ```bash
