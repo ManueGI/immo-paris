@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # ---- Build stage: install locked dependencies and the project into /app/.venv ----
-FROM python:3.12-slim AS builder
+FROM python:3.14-slim AS builder
 
 COPY --from=ghcr.io/astral-sh/uv:0.12.20 /uv /bin/uv
 
@@ -27,7 +27,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 
 
 # ---- Runtime stage: only the virtual environment and what Alembic needs ----
-FROM python:3.12-slim
+FROM python:3.14-slim
 
 # Unprivileged user: a compromised process does not get root in the container
 RUN groupadd --system app && useradd --system --gid app --no-create-home app
