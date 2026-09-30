@@ -33,7 +33,7 @@ their official French spelling.
 
 - `api/` HTTP layer · `schemas/` public JSON contract · `db/` database schema ·
   `ingestion/` DVF download and cleaning · `core/` settings.
-- Dependencies point one way: `api → schemas, core`; `ingestion → core`. `api` and
+- Dependencies point one way: `api → schemas, core`; `ingestion → db, core`. `api` and
   `ingestion` never import each other.
 - Inject dependencies with FastAPI `Depends` (settings, DB sessions) instead of calling
   them inside endpoints, so tests can override them.

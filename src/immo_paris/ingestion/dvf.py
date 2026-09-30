@@ -10,6 +10,7 @@ exactly one dwelling, whose other rows (if any) are outbuildings or bare land.
 
 import logging
 import re
+from dataclasses import dataclass
 from pathlib import Path
 
 import pandas as pd
@@ -29,6 +30,7 @@ RAW_COLUMNS = {
     "adresse_suffixe": "street_suffix",
     "adresse_nom_voie": "street_name",
     "code_postal": "postal_code",
+    "code_commune": "commune_code",
     "type_local": "premises_type",
     "surface_reelle_bati": "surface_m2",
     "nombre_pieces_principales": "rooms",
@@ -51,6 +53,7 @@ MAX_PRICE_PER_M2 = 30_000
 OUTPUT_COLUMNS = [
     "mutation_id",
     "date",
+    "commune_code",
     "address",
     "postal_code",
     "property_type",
@@ -73,10 +76,12 @@ def latest_year(base_url: str) -> str:
     return max(years)
 
 
-def download(base_url: str, departement: str, year: str, data_dir: Path) -> Path:
-    url = f"{base_url}/{year}/departements/{departement}.csv.gz"
-    dest = data_dir / f"dvf_{departement}_{year}.csv.gz"
-    data_dir.mkdir(parents=True, exist_ok=True)
+def dvf_url(base_url: str, departement: str, year: str) -> str:
+    return f"{base_url}/{year}/departements/{departement}.csv.gz"
+
+
+def download(url: str, dest: Path) -> Path:
+    dest.parent.mkdir(parents=True, exist_ok=True)
 
     logger.info("Downloading %s", url)
     with requests.get(url, stream=True, timeout=TIMEOUT) as resp:
@@ -96,6 +101,7 @@ def load_raw(path: Path) -> pd.DataFrame:
         dtype={
             "id_mutation": "string",
             "code_postal": "string",
+            "code_commune": "string",
             "adresse_numero": "string",
             "adresse_suffixe": "string",
         },
@@ -145,6 +151,8 @@ def to_sales(df: pd.DataFrame) -> pd.DataFrame:
         address=address,
         property_type=df["premises_type"].map(DWELLING_TYPES),
         price_per_m2=(df["price"] / df["surface_m2"]).round(0),
+        # DVF built surfaces are whole square metres
+        surface_m2=df["surface_m2"].astype("Int64"),
         rooms=df["rooms"].astype("Int64"),
     )[OUTPUT_COLUMNS]
 
@@ -157,13 +165,33 @@ def remove_price_outliers(
     return df[df["price_per_m2"].between(min_price_per_m2, max_price_per_m2)]
 
 
-def clean(raw: pd.DataFrame, limit: int = 0) -> pd.DataFrame:
-    """Run the full cleaning pipeline and log the row count after each step."""
-    logger.info("%-32s %7d rows", "raw", len(raw))
+@dataclass(frozen=True)
+class CleaningResult:
+    sales: pd.DataFrame
+    # Row count after each step, from "raw" to the last one: the pipeline funnel
+    row_counts: dict[str, int]
+
+
+def clean(raw: pd.DataFrame) -> CleaningResult:
+    """Run the full cleaning pipeline, logging and recording the row count after each step."""
+    row_counts = {"raw": len(raw)}
     df = raw
     for step in (keep_sales, keep_single_dwelling_mutations, to_sales, remove_price_outliers):
         df = step(df)
-        logger.info("%-32s %7d rows", step.__name__, len(df))
+        row_counts[step.__name__] = len(df)
 
-    df = df.sort_values(["date", "mutation_id"], ascending=False)
-    return df.head(limit) if limit else df
+    for name, count in row_counts.items():
+        logger.info("%-32s %7d rows", name, count)
+    return CleaningResult(sales=df, row_counts=row_counts)
+
+
+def dataset_year(raw: pd.DataFrame) -> int:
+    """Return the single year covered by a geo-dvf file, which is published per year.
+
+    Loading replaces all the sales of that year, so a file spanning several years would
+    silently delete data: fail instead.
+    """
+    years = pd.to_datetime(raw["date"]).dt.year.unique()
+    if len(years) != 1:
+        raise ValueError(f"Expected sales from a single year, found {sorted(years)}")
+    return int(years[0])

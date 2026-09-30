@@ -50,6 +50,14 @@ def run_migrations_offline() -> None:
 
 
 def run_migrations_online() -> None:
+    # Tests pass their own connection (to the test database) through the Alembic config
+    connection = config.attributes.get("connection")
+    if connection is not None:
+        configure(connection=connection)
+        with context.begin_transaction():
+            context.run_migrations()
+        return
+
     engine = create_engine(database_url(), poolclass=pool.NullPool)
     with engine.connect() as connection:
         configure(connection=connection)

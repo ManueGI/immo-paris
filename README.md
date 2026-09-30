@@ -17,11 +17,17 @@ cp .env.example .env         # then adjust the values
 uv sync                      # create .venv and install locked dependencies
 docker compose up -d --wait  # start PostgreSQL 17 + PostGIS 3.5 on localhost:5432
 uv run alembic upgrade head  # create or update the database schema
-uv run immo-ingest           # download DVF and build data/dvf_paris_sample.csv
+uv run immo-ingest           # download the latest DVF year and load it into the database
 uv run python -m immo_paris  # start the API on http://127.0.0.1:8000 (docs: /docs)
 ```
 
-Use `uv run immo-ingest --raw data/dvf_75_2025.csv.gz` to reprocess an already downloaded file.
+Each run replaces all the sales of one year, in a single transaction: re-running it is safe.
+
+```bash
+uv run immo-ingest --year 2023                         # load a given year
+uv run immo-ingest --raw data/dvf_75_2025.csv.gz       # reload an already downloaded file
+for y in 2021 2022 2023 2024 2025; do uv run immo-ingest --year $y; done  # full history
+```
 
 ## Database
 
@@ -66,6 +72,9 @@ each row. The ingestion pipeline (`src/immo_paris/ingestion/dvf.py`) therefore k
    excludes the mutation;
 3. sales with a known price and a positive built surface;
 4. a price per m² between 3,000 and 30,000 €.
+
+Every load is recorded in `ingestion_runs` (source file, SHA-256, row count after each
+cleaning step), and the `commune_yearly_stats` materialized view is refreshed afterwards.
 
 ## Layout
 
