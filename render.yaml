@@ -1,0 +1,50 @@
+# Render Blueprint: the API and the web app, both on Render's free plan (no credit card).
+# Render only runs the containers: the database is on Neon, migrations and DVF loads run in
+# GitHub Actions (.github/workflows/database.yml), and configuration comes from environment
+# variables, so moving to another container host only means replacing this file.
+#
+# Free services sleep after 15 minutes without traffic and take about a minute to wake up.
+
+services:
+  - type: web
+    name: immo-paris-api
+    runtime: docker
+    plan: free
+    region: frankfurt # next to the Neon database (AWS eu-central-1)
+    dockerContext: ./api
+    dockerfilePath: ./api/Dockerfile
+    healthCheckPath: /health # does not touch the database
+    # Deploy only commits whose CI checks passed, and only when the API changed
+    autoDeployTrigger: checksPass
+    buildFilter:
+      paths:
+        - api/**
+    envVars:
+      - key: PORT # the image listens on 8000; Render defaults to 10000
+        value: "8000"
+      - key: DATABASE_URL # Neon connection string, prompted when the Blueprint is created
+        sync: false
+      - key: CORS_ORIGINS
+        value: https://immo-paris-web.onrender.com
+
+  - type: web
+    name: immo-paris-web
+    runtime: docker
+    plan: free
+    region: frankfurt
+    dockerContext: . # pnpm workspace: the web app depends on packages/api-client
+    dockerfilePath: ./web/Dockerfile
+    healthCheckPath: /health # answered by server.ts without rendering a page
+    autoDeployTrigger: checksPass
+    buildFilter:
+      paths:
+        - web/**
+        - packages/**
+        - package.json
+        - pnpm-lock.yaml
+        - pnpm-workspace.yaml
+    envVars:
+      - key: API_BASE_URL
+        value: https://immo-paris-api.onrender.com
+      - key: NG_ALLOWED_HOSTS # Angular SSR rejects requests for other hosts (SSRF protection)
+        value: immo-paris-web.onrender.com

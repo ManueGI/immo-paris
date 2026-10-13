@@ -44,7 +44,8 @@ src/app/
 - Templates use the built-in control flow (`@if`, `@for` with `track`, `@let`), never
   `*ngIf` / `*ngFor`.
 - API access goes through the services in `core/api/` (HttpClient + generated types); the
-  base URL comes from the `API_BASE_URL` token.
+  base URL comes from the `API_BASE_URL` token, set at runtime from the server's
+  `API_BASE_URL` environment variable (never hard-code an environment's URL).
 - SSR: code runs on the server first, so never touch `window`, `document` or
   `localStorage` directly. Set the title and meta description of every page (SEO), and
   return a real 404 status for unknown pages (`RESPONSE_INIT`).

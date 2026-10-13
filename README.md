@@ -19,6 +19,16 @@ per m² statistics by arrondissement.
 The API contract is committed as `api/openapi.json`: the web and mobile clients are
 generated from it, and pull requests that break it fail CI.
 
+## Live
+
+- Website: https://immo-paris-web.onrender.com
+- API documentation: https://immo-paris-api.onrender.com/docs
+
+Hosted for free: Render runs the API and web containers ([render.yaml](render.yaml)), Neon
+hosts PostgreSQL + PostGIS, and GitHub Actions applies migrations and loads DVF data.
+Free services sleep after 15 minutes without traffic: the first visit after a pause can take
+about a minute.
+
 ## Getting started
 
 Requirements: [uv](https://docs.astral.sh/uv/), [Docker](https://docs.docker.com/get-docker/)
