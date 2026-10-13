@@ -39,6 +39,15 @@ keep their official French spelling, and text shown to users of the apps is in F
   workflow-level `paths` filter to a required workflow: a skipped workflow never reports
   its checks and blocks unrelated pull requests. Skip work inside the jobs instead.
 
+## Deployment
+
+- Render runs the API and web Docker images described in `render.yaml`, after CI passes on
+  `main`. The database is on Neon, changed only by the `Production database` workflow.
+- Keep the deployment portable: configuration through environment variables, no
+  host-specific code, data outside the container host.
+- Schema changes: run the `Production database` workflow before relying on the new schema
+  in the API (migrations are not applied by the API at startup).
+
 ## Commits and pull requests
 
 - `main` is protected: no direct push. Work on a branch (`feat/...`, `fix/...`,

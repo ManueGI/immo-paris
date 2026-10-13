@@ -86,6 +86,7 @@ jobs:
         run: uv run pytest
 
   docker:
+    # Name kept as is: it is a required check of the main branch ruleset
     name: Docker image
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -97,13 +98,23 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
 
-      - name: Build the image
+      - name: Build the API image
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           context: ./api
-          # Only prove that the image builds; publishing comes with the deployment
+          # Only prove that the image builds: Render builds the deployed images itself
           push: false
           tags: immo-paris-api:ci
           # Keep Docker layers in the GitHub Actions cache between runs
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=api
+          cache-to: type=gha,mode=max,scope=api
+
+      - name: Build the web image
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          file: ./web/Dockerfile
+          push: false
+          tags: immo-paris-web:ci
+          cache-from: type=gha,scope=web
+          cache-to: type=gha,mode=max,scope=web
