@@ -44,12 +44,11 @@
             }
             <td class="number">
               @if (row.stats.avg_surface_m2 !== null) {
-                {{ row.stats.avg_surface_m2 | number }} m²
+                {{ row.stats.avg_surface_m2 | number }}&nbsp;m²
               } @else {
                 —
               }
             </td>
-
             <td class="number">{{ row.stats.sales_count }}</td>
           </tr>
         } @empty {

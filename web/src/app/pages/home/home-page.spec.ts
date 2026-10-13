@@ -43,15 +43,24 @@ describe('HomePage', () => {
     // French thousands separator is a narrow no-break space (U+202F), matched by \s
     expect(row?.textContent).toMatch(/9\s972/);
     expect(row?.querySelector('a')?.getAttribute('href')).toBe('/arrondissements/paris-11');
-    expect(row?.textContent).toContain('45 m²');
+    // Non-breaking space between the value and its unit (U+00A0), matched by \s
+    expect(row?.textContent).toMatch(/45\sm²/);
   });
 
-  it('does not show a median computed on too few sales', async () => {
+  it('does not show statistics computed on too few sales', async () => {
+    // Below the API threshold, every computed value is null, the average surface included
     const page = await render([
-      communeStats({ median_price_per_m2: null, p25_price_per_m2: null, p75_price_per_m2: null }),
+      communeStats({
+        median_price_per_m2: null,
+        p25_price_per_m2: null,
+        p75_price_per_m2: null,
+        avg_surface_m2: null,
+      }),
     ]);
 
-    expect(page.querySelector('tbody tr')?.textContent).toContain('Pas assez de ventes');
+    const row = page.querySelector('tbody tr');
+    expect(row?.textContent).toContain('Pas assez de ventes');
+    expect(row?.textContent).toContain('—');
   });
 
   it('shows a message when the API fails', async () => {
