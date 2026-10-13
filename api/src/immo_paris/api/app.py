@@ -23,6 +23,8 @@ def create_app() -> FastAPI:
         allow_origins=settings.cors_origins,
         allow_methods=["GET"],
         allow_headers=["*"],
+        # Response headers browsers may let JavaScript read, beyond the CORS-safelisted ones
+        expose_headers=["Retry-After"],
     )
 
     register_error_handlers(app)

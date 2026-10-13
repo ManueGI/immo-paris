@@ -306,6 +306,8 @@ export interface operations {
             /** @description The database is temporarily unavailable */
             503: {
                 headers: {
+                    /** @description Seconds to wait before retrying */
+                    "Retry-After"?: number;
                     [name: string]: unknown;
                 };
                 content: {
@@ -352,6 +354,8 @@ export interface operations {
             /** @description The database is temporarily unavailable */
             503: {
                 headers: {
+                    /** @description Seconds to wait before retrying */
+                    "Retry-After"?: number;
                     [name: string]: unknown;
                 };
                 content: {
@@ -401,6 +405,8 @@ export interface operations {
             /** @description The database is temporarily unavailable */
             503: {
                 headers: {
+                    /** @description Seconds to wait before retrying */
+                    "Retry-After"?: number;
                     [name: string]: unknown;
                 };
                 content: {
@@ -443,6 +449,8 @@ export interface operations {
             /** @description The database is temporarily unavailable */
             503: {
                 headers: {
+                    /** @description Seconds to wait before retrying */
+                    "Retry-After"?: number;
                     [name: string]: unknown;
                 };
                 content: {

@@ -14,7 +14,16 @@ logger = logging.getLogger(__name__)
 RETRY_AFTER_SECONDS = 30
 
 DATABASE_UNAVAILABLE = {
-    503: {"model": ErrorResponse, "description": "The database is temporarily unavailable"}
+    503: {
+        "model": ErrorResponse,
+        "description": "The database is temporarily unavailable",
+        "headers": {
+            "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {"type": "integer"},
+            }
+        },
+    }
 }
 
 

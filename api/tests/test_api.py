@@ -45,3 +45,13 @@ def test_database_down_returns_503_with_cors_headers(path: str) -> None:
     assert resp.json() == {"detail": "The database is temporarily unavailable"}
     assert resp.headers["retry-after"] == "30"
     assert "access-control-allow-origin" in resp.headers
+    # Browsers only let JavaScript read Retry-After if CORS exposes it
+    assert "retry-after" in resp.headers["access-control-expose-headers"].lower()
+
+
+def test_retry_after_header_is_documented_in_the_contract() -> None:
+    with TestClient(create_app()) as client:
+        paths = client.get("/openapi.json").json()["paths"]
+
+    unavailable = paths["/api/v1/sales"]["get"]["responses"]["503"]
+    assert unavailable["headers"]["Retry-After"]["schema"] == {"type": "integer"}
