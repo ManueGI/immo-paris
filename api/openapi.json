@@ -115,6 +115,24 @@
               }
             }
           },
+          "503": {
+            "description": "The database is temporarily unavailable",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -205,6 +223,24 @@
               }
             }
           },
+          "503": {
+            "description": "The database is temporarily unavailable",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -243,6 +279,24 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Sale"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The database is temporarily unavailable",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
@@ -326,6 +380,24 @@
                     "$ref": "#/components/schemas/CommuneStats"
                   },
                   "title": "Response List Commune Stats"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The database is temporarily unavailable",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
                 }
               }
             }
