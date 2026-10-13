@@ -66,14 +66,24 @@ OUTPUT_COLUMNS = [
 ]
 
 
-def latest_year(base_url: str) -> str:
-    """Return the most recent year available in the geo-dvf listing."""
+def parse_available_years(listing_html: str) -> list[str]:
+    """Years linked from a geo-dvf directory listing page, oldest first."""
+    return sorted(set(re.findall(r'href="[^"]*/(\d{4})/"', listing_html)))
+
+
+def available_years(base_url: str) -> list[str]:
+    """Years currently published on geo-dvf, oldest first."""
     resp = requests.get(f"{base_url}/", timeout=TIMEOUT)
     resp.raise_for_status()
-    years = re.findall(r'href="[^"]*/(\d{4})/"', resp.text)
+    years = parse_available_years(resp.text)
     if not years:
-        raise RuntimeError("Unable to determine the latest available DVF year.")
-    return max(years)
+        raise RuntimeError("Unable to determine the available DVF years.")
+    return years
+
+
+def latest_year(base_url: str) -> str:
+    """Return the most recent year available in the geo-dvf listing."""
+    return available_years(base_url)[-1]
 
 
 def dvf_url(base_url: str, departement: str, year: str) -> str:

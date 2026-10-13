@@ -33,7 +33,7 @@ Each run replaces all the sales of one year, in a single transaction: re-running
 ```bash
 uv run immo-ingest --year 2023                         # load a given year
 uv run immo-ingest --raw data/dvf_75_2025.csv.gz       # reload an already downloaded file
-for y in 2021 2022 2023 2024 2025; do uv run immo-ingest --year $y; done  # full history
+uv run immo-ingest --all-years                         # every published year (full history)
 ```
 
 ## API
@@ -61,6 +61,14 @@ docker compose --profile app down                   # stop everything (data is k
 ```
 
 Without `--profile app`, Compose only starts the database, for local development with uv.
+
+## Production database
+
+The production database is hosted on [Neon](https://neon.tech) (PostgreSQL + PostGIS). Its
+connection string is the `NEON_DATABASE_URL` repository secret, never stored in files. The
+[Production database](../.github/workflows/database.yml) workflow applies the migrations and
+reloads every DVF year: run it from the Actions tab after a schema change; it also runs
+monthly to pick up new DVF publications.
 
 ## Database
 

@@ -1,0 +1,80 @@
+# Production database (Neon): apply migrations, then reload every published DVF year.
+# Runs on demand (Actions tab > Production database > Run workflow) and monthly, to pick up
+# new DVF publications (twice a year). Each year is replaced in one transaction, so a run
+# can be repeated safely. Not a required check: it does not run on pull requests.
+name: Production database
+
+on:
+  workflow_dispatch:
+    inputs:
+      load_data:
+        description: Reload every published DVF year after migrating
+        type: boolean
+        default: true
+  schedule:
+    - cron: "0 5 2 * *" # 05:00 UTC on the 2nd of each month
+
+# Never run two loads at the same time; let a running one finish
+concurrency:
+  group: production-database
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  migrate-and-load:
+    name: Migrate and load DVF
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    env:
+      # Repository secret (Settings > Secrets and variables > Actions); masked in logs
+      DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
+
+    defaults:
+      run:
+        working-directory: api
+
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        with:
+          version: "0.12.20"
+          enable-cache: true
+          cache-dependency-glob: api/uv.lock
+
+      - name: Install dependencies
+        run: uv sync --locked --no-dev
+
+      - name: Apply migrations
+        run: uv run alembic upgrade head
+
+      - name: Load every published DVF year
+        # Scheduled runs have no inputs: load by default
+        if: github.event_name == 'schedule' || inputs.load_data
+        run: uv run immo-ingest --all-years
+
+      - name: Summary
+        run: |
+          uv run python - >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          from sqlalchemy import text
+
+          from immo_paris.db.session import get_engine
+
+          with get_engine().connect() as conn:
+              rows = conn.execute(text(
+                  "SELECT extract(year FROM sale_date)::int AS year, count(*) AS sales"
+                  " FROM sales GROUP BY 1 ORDER BY 1"
+              )).all()
+              revision = conn.execute(text("SELECT version_num FROM alembic_version")).scalar()
+
+          print(f"Schema revision: `{revision}`\n")
+          print("| Year | Sales |\n|---|---|")
+          for row in rows:
+              print(f"| {row.year} | {row.sales} |")
+          print(f"| **Total** | **{sum(row.sales for row in rows)}** |")
+          EOF
