@@ -4,11 +4,12 @@ from fastapi import APIRouter, HTTPException, Query
 from fastapi.exceptions import RequestValidationError
 
 from immo_paris.api.dependencies import SaleRepositoryDep
+from immo_paris.api.errors import DATABASE_UNAVAILABLE
 from immo_paris.repositories.pagination import InvalidCursorError, SaleCursor
 from immo_paris.schemas.errors import ErrorResponse
 from immo_paris.schemas.sale import NearbySale, PropertyType, Sale, SalePage
 
-router = APIRouter(prefix="/api/v1/sales", tags=["sales"])
+router = APIRouter(prefix="/api/v1/sales", tags=["sales"], responses=DATABASE_UNAVAILABLE)
 
 CommuneCode = Annotated[
     str, Query(pattern=r"^[0-9][0-9AB][0-9]{3}$", description="INSEE code, e.g. 75111")

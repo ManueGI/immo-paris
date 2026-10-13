@@ -3,10 +3,11 @@ from typing import Annotated
 from fastapi import APIRouter, Query
 
 from immo_paris.api.dependencies import StatsRepositoryDep
+from immo_paris.api.errors import DATABASE_UNAVAILABLE
 from immo_paris.schemas.sale import PropertyType
 from immo_paris.schemas.stats import CommuneStats
 
-router = APIRouter(prefix="/api/v1/stats", tags=["stats"])
+router = APIRouter(prefix="/api/v1/stats", tags=["stats"], responses=DATABASE_UNAVAILABLE)
 
 
 @router.get("/communes", response_model=list[CommuneStats])

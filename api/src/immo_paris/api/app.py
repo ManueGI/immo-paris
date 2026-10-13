@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.routing import APIRoute
 
+from immo_paris.api.errors import register_error_handlers
 from immo_paris.api.routes import health, sales, stats
 from immo_paris.core.config import get_settings
 
@@ -23,6 +24,8 @@ def create_app() -> FastAPI:
         allow_methods=["GET"],
         allow_headers=["*"],
     )
+
+    register_error_handlers(app)
 
     app.include_router(health.router)
     app.include_router(sales.router)
