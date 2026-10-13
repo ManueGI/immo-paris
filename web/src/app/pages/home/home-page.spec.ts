@@ -43,6 +43,7 @@ describe('HomePage', () => {
     // French thousands separator is a narrow no-break space (U+202F), matched by \s
     expect(row?.textContent).toMatch(/9\s972/);
     expect(row?.querySelector('a')?.getAttribute('href')).toBe('/arrondissements/paris-11');
+    expect(row?.textContent).toContain('45 m²');
   });
 
   it('does not show a median computed on too few sales', async () => {

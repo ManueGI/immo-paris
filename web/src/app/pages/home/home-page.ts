@@ -1,4 +1,4 @@
-import { CurrencyPipe } from '@angular/common';
+import { CurrencyPipe, DecimalPipe } from '@angular/common';
 import { Component, computed, inject } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { Meta } from '@angular/platform-browser';
@@ -10,7 +10,7 @@ import { arrondissementByCode } from '../../core/arrondissements';
 /** Home page: price per m² of apartments in the 20 arrondissements. */
 @Component({
   selector: 'app-home-page',
-  imports: [RouterLink, CurrencyPipe],
+  imports: [RouterLink, CurrencyPipe, DecimalPipe],
   templateUrl: './home-page.html',
   styleUrl: './home-page.scss',
 })

@@ -19,6 +19,7 @@
           <th scope="col">Arrondissement</th>
           <th scope="col" class="number">Prix médian</th>
           <th scope="col" class="number">Moitié des ventes entre</th>
+          <th scope="col" class="number">Surface moyenne</th>
           <th scope="col" class="number">Ventes</th>
         </tr>
       </thead>
@@ -41,11 +42,19 @@
             } @else {
               <td class="number" colspan="2">Pas assez de ventes</td>
             }
+            <td class="number">
+              @if (row.stats.avg_surface_m2 !== null) {
+                {{ row.stats.avg_surface_m2 | number }} m²
+              } @else {
+                —
+              }
+            </td>
+
             <td class="number">{{ row.stats.sales_count }}</td>
           </tr>
         } @empty {
           <tr>
-            <td colspan="4">Aucune donnée disponible.</td>
+            <td colspan="5">Aucune donnée disponible.</td>
           </tr>
         }
       </tbody>
