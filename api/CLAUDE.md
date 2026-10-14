@@ -15,7 +15,12 @@ uv run alembic upgrade head      # apply migrations
 uv run python -m immo_paris      # run the API (http://127.0.0.1:8000/docs)
 uv run immo-ingest --raw data/dvf_75_2025.csv.gz   # run ingestion on a local file
 uv run immo-openapi                                # regenerate openapi.json after an API change
+uv run immo-ingest --all-years                     # load every published DVF year
 ```
+
+Production (Neon) is only changed by the `Production database` workflow
+(`.github/workflows/database.yml`), with the `NEON_DATABASE_URL` secret: never point a
+local `.env` at it, and never print or commit its connection string.
 
 Settings are read from the environment, then the root `.env`, then an optional `api/.env`.
 

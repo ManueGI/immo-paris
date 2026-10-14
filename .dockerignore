@@ -1,0 +1,11 @@
+# Build context of the web image (web/Dockerfile, built from the repository root).
+# The API image uses api/ as its context, with api/.dockerignore.
+.git
+.env
+.claude
+**/node_modules
+**/dist
+**/.angular
+api
+mobile
+compose.yaml
