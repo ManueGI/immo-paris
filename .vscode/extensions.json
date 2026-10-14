@@ -1,0 +1,11 @@
+{
+  // VS Code suggests installing these when the folder is opened
+  "recommendations": [
+    "charliermarsh.ruff",
+    "ms-python.python",
+    "esbenp.prettier-vscode",
+    "angular.ng-template",
+    "editorconfig.editorconfig",
+    "ms-azuretools.vscode-docker"
+  ]
+}

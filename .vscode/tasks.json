@@ -1,0 +1,53 @@
+{
+  // Development servers, from the Command Palette: "Tasks: Run Task", then "dev: start all"
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "dev: database",
+      "detail": "PostgreSQL + PostGIS in Docker (Docker Desktop must be running)",
+      "type": "shell",
+      "command": "docker compose up -d --wait",
+      "problemMatcher": []
+    },
+    {
+      "label": "dev: api",
+      "detail": "FastAPI on http://127.0.0.1:8000 (docs: /docs), reloads on save",
+      "type": "shell",
+      "command": "uv run python -m immo_paris",
+      "options": { "cwd": "${workspaceFolder}/api" },
+      "dependsOn": "dev: database",
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "uvicorn",
+        "pattern": { "regexp": "^__never_matches__$" },
+        "background": {
+          "beginsPattern": "Will watch for changes|Started reloader",
+          "endsPattern": "Application startup complete"
+        }
+      },
+      "presentation": { "group": "dev", "panel": "dedicated" }
+    },
+    {
+      "label": "dev: web",
+      "detail": "Angular with server-side rendering on http://localhost:4200, reloads on save",
+      "type": "shell",
+      "command": "pnpm --filter @immo-paris/web start",
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "angular",
+        "pattern": { "regexp": "^__never_matches__$" },
+        "background": {
+          "beginsPattern": "Building|Changes detected",
+          "endsPattern": "Local:|Application bundle generation (complete|failed)"
+        }
+      },
+      "presentation": { "group": "dev", "panel": "dedicated" }
+    },
+    {
+      "label": "dev: start all",
+      "detail": "Database, then API and web app side by side",
+      "dependsOn": ["dev: api", "dev: web"],
+      "problemMatcher": []
+    }
+  ]
+}
