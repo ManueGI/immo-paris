@@ -1,0 +1,22 @@
+# Editor configuration for the whole repository, see https://editorconfig.org
+# (VS Code needs the EditorConfig extension; Prettier and ruff read compatible settings)
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 2
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Python: 4 spaces, as formatted by ruff
+[*.py]
+indent_size = 4
+
+[*.ts]
+quote_type = single
+
+[*.md]
+max_line_length = off
+trim_trailing_whitespace = false

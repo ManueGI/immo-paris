@@ -42,6 +42,19 @@ docker compose --profile app up -d --build --wait
 This starts PostgreSQL + PostGIS, applies the migrations and serves the API on
 http://127.0.0.1:8080/docs. To load data and to develop the API, see [api/README.md](api/README.md).
 
+## Development
+
+Open the repository folder in VS Code and accept the recommended extensions: code is
+formatted on save like in CI (ruff for Python, Prettier for TypeScript, HTML and SCSS).
+
+Start everything with **Tasks: Run Task → dev: start all** (Command Palette), or by hand:
+
+```bash
+docker compose up -d --wait                  # PostgreSQL + PostGIS (localhost:5432)
+cd api && uv run python -m immo_paris        # API: http://127.0.0.1:8000/docs
+pnpm --filter @immo-paris/web start          # website: http://localhost:4200
+```
+
 ## Contributing
 
 `main` is protected: changes go through pull requests, which are squash-merged once CI is
