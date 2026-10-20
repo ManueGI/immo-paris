@@ -26,10 +26,8 @@ def list_commune_stats(
 @router.get("/communes/{commune_code}/history", response_model=list[CommuneStats])
 def get_commune_price_history(
     stats: StatsRepositoryDep,
-    commune_code: Annotated[str, Path(pattern=r"^[0-9][0-9AB][0-9]{3}$")],  # ← ① le format autorisé
+    commune_code: Annotated[str, Path(pattern=r"^[0-9][0-9AB][0-9]{3}$")],
     property_type: PropertyType | None = None,
 ) -> list[CommuneStats]:
     """Price per m² statistics of one commune for every year, oldest first."""
-    return stats.commune_history(
-        commune_code=commune_code, property_type=property_type
-    )  # ← ② déléguer au repository
+    return stats.commune_history(commune_code=commune_code, property_type=property_type)
