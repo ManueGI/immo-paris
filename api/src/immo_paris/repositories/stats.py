@@ -30,7 +30,7 @@ class StatsRepository:
         return self._connection.execute(select(func.max(commune_yearly_stats.c.year))).scalar()
 
     def _select_stats(self, min_sales: int) -> Select[tuple[object, ...]]:
-        """Columns of CommuneStats, prices hidden below 'min_sales (sharedby queries)."""
+        """Columns of CommuneStats, prices hidden below 'min_sales (shared by queries)."""
         stats = commune_yearly_stats.c
         reliable = stats.sales_count >= min_sales
 
