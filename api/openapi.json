@@ -414,6 +414,88 @@
           }
         }
       }
+    },
+    "/api/v1/stats/communes/{commune_code}/history": {
+      "get": {
+        "tags": [
+          "stats"
+        ],
+        "summary": "Get Commune Price History",
+        "description": "Price per m² statistics of one commune for every year, oldest first.",
+        "operationId": "get_commune_price_history",
+        "parameters": [
+          {
+            "name": "commune_code",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9][0-9AB][0-9]{3}$",
+              "title": "Commune Code"
+            }
+          },
+          {
+            "name": "property_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/PropertyType"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Property Type"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CommuneStats"
+                  },
+                  "title": "Response Get Commune Price History"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The database is temporarily unavailable",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
